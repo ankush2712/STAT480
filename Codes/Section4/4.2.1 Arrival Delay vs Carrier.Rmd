@@ -1,0 +1,24 @@
+```{r}
+treedata00=read.csv("carrier_count_descrip_00.csv")
+colnames(treedata00)=c("carrier","number_of_flight","cancellation_rate","diverted_rate","arrival_delay_rat","description")
+treemap(treedata00,
+        index=c("description"),
+        vSize="number_of_flight",
+        vColor="arrival_delay_rat",
+        type="value",
+        title = "Number of flight and arrival delay rate by carrier in 2000",
+        title.legend="Arrival Delay Rate")
+```
+
+
+```{r}
+treedata03=read.csv("carrier_count_descrip_03.csv")
+colnames(treedata03)=c("carrier","number_of_flight","cancellation_rate","diverted_rate","arrival_delay_rat","description")
+treemap(treedata03,
+        index=c("description"),
+        vSize="number_of_flight",
+        vColor="arrival_delay_rat",
+        type="value",
+        title = "Number of flight and arrival delay rate by carrier in 2003",
+        title.legend="Arrival Delay Rate")
+```

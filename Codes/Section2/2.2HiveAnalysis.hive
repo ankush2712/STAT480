@@ -1,0 +1,35 @@
+--Checking cancelled and cancellation code together to see if cancellation code is missing only when flight is cancelled (Cancelled=1)
+select 
+    cancelled, 
+    cancellationcode, 
+    count(*) 
+    from airlinedata0003 
+    group by cancelled,cancellationcode 
+    order by cancelled asc;
+
+--288,959 flights are cancelled (Cancelled=1). The same number of observations are missing in DepTime, ArrTime, ActualElapsedTime, AirTime, ArrDelay, DepDelay.
+--Verifying this hypothesis
+select
+    sum(case when cancelled=1 and DepTime is null and ArrTime is null and ActualElapsedTime is null and AirTime is null and ArrDelay is null 
+    and DepDelay is null then 1 else 0 end) as hypothesis
+    from AirLineData0003;
+    
+--Result : 288959. This confirms our hypothesis.
+
+
+--Segregating cancelled and non-cancelled flights as the missing values will be taken care of
+create table airlinedata0003_cancelled as
+    select 
+    *
+    from airlinedata0003
+    where cancelled=1;
+
+create table airlinedata0003_notcancelled as
+    select 
+    *
+    from airlinedata0003
+    where cancelled=0;
+
+--Change the table name in the shell script to airlinedata0003_cancelled for missing values (2.2MissingValues.sh) and 
+-- execute it for AirLineData0003_notcancelled table
+

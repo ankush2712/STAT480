@@ -1,0 +1,86 @@
+---
+title: "Group"
+author: "Chenxing Wu"
+date: "4/5/2018"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(treemap)
+library(plyr)
+```
+
+```{r}
+plane_data = read.csv("plane-data.csv", header = TRUE)
+```
+
+```{r}
+# Get the overall aggregated data with both years combined
+elapse_data_total = read.csv("model_elapse_total.csv", header = FALSE)
+names(elapse_data_total) = c("Model", "AVGCRSElapsedTime", "count")
+View(elapse_data_total)
+
+# Get the top 10 duration and bottom 10 duration for overall data
+top10_total = head(arrange(elapse_data_total, desc(AVGCRSElapsedTime)), n = 10)
+bottom10_total = head(arrange(elapse_data_total, AVGCRSElapsedTime), n = 10)
+```
+
+```{r}
+treemap(top10_total,
+        index=c("Model"),
+        vSize="AVGCRSElapsedTime",
+        vColor = "count",
+        type="value",
+        title = "Top 10 Airplane Models Used for Long Duration Flights Overview",
+        palette="RdYlBu")
+```
+
+```{r}
+treemap(bottom10_total,
+        index=c("Model"),
+        vSize="AVGCRSElapsedTime",
+        vColor = "count",
+        type="value",
+        title = "Top 10 Airplane Models Used for Short Duration Flights Overview",
+        palette="RdYlBu")
+```
+
+```{r}
+# Get the aggregated data for seperate years
+elapse_data = read.csv("model_elapse.csv", header = FALSE)
+names(elapse_data) = c("Model", "Year", "AVGCRSElapsedTime", "count")
+
+# Split by year
+elaspe00 = elapse_data[elapse_data$Year == 2000,]
+elaspe03 = elapse_data[elapse_data$Year == 2003,]
+
+# For each year, get the top 10 duration and bottom 10 duration
+top1000 = head(arrange(elaspe00, desc(AVGCRSElapsedTime)), n = 10)
+top1003 = head(arrange(elaspe03, desc(AVGCRSElapsedTime)), n = 10)
+top10 = rbind(top1000, top1003)
+
+bottom1000 = head(arrange(elaspe00, AVGCRSElapsedTime), n = 10)
+bottom1003 = head(arrange(elaspe03, AVGCRSElapsedTime), n = 10)
+bottom10 = rbind(bottom1000, bottom1003)
+```
+
+```{r}
+treemap(top10,
+        index=c("Year", "Model"),
+        vSize="AVGCRSElapsedTime",
+        vColor = "count",
+        type="value",
+        title = "Top 10 Airplane Models Used for Long Duration Flights in 2000 vs 2003",
+        palette="RdYlBu")
+```
+
+```{r}
+treemap(bottom10,
+        index=c("Year", "Model"),
+        vSize="AVGCRSElapsedTime",
+        vColor = "count",
+        type="value",
+        title = "Top 10 Airplane Models Used for Short Duration Flights in 2000 vs 2003",
+        palette="RdYlBu")
+```
+

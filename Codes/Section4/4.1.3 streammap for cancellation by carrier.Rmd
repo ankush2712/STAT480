@@ -1,0 +1,30 @@
+##streammap cacellation by carrier##
+
+```{r}
+##streammap
+library(dplyr)
+monthly=read.csv("carrier_monthly_Descript.csv")
+colnames(monthly)=c("Year","Month","Carrier","No.Cancelled","No.flight","Cancelled_rate","description") 
+monthly %>% filter(Year==2000) -> data_2000_monthly
+data_2000_monthly$Date <- as.Date(with(data_2000_monthly, paste(Year, Month, 1,sep="-")), "%Y-%m-%d")
+streamgraph(data_2000_monthly, "description", "Cancelled_rate", "Date") %>%
+sg_fill_brewer("Spectral") %>%
+sg_axis_x(tick_units = "Date", tick_interval = 1, tick_format = "%m") %>%
+sg_title("Cancellation Rate by Carrier in 2000")
+
+```
+
+
+
+```{r}
+##streammap
+library(dplyr)
+monthly=read.csv("carrier_monthly_Descript.csv")
+colnames(monthly)=c("Year","Month","Carrier","No.Cancelled","No.flight","Cancelled_rate","description") 
+monthly %>% filter(Year==2003) -> data_2000_monthly
+data_2000_monthly$Date <- as.Date(with(data_2000_monthly, paste(Year, Month, 1,sep="-")), "%Y-%m-%d")
+streamgraph(data_2000_monthly, "description", "Cancelled_rate", "Date") %>%
+sg_fill_brewer("Spectral") %>%
+sg_axis_x(tick_units = "Date", tick_interval = 1, tick_format = "%m")%>%
+sg_title("Cancellation Rate by Carrier in 2000")
+```

@@ -1,0 +1,9 @@
+-- Remove the observations with negative values in ActualElapsedTime, CRSElapsedTime and AirTime (this represents just 0.03% of overall data)    
+-- Final table with data treatment
+create table airlinedata0003_treated as
+    select
+    *
+    from airlinedata0003
+    where (ActualElapsedTime is null or ActualElapsedTime>=0) and 
+    (CRSElapsedTime is null or CRSElapsedTime>=0) and 
+    (AirTime is null or AirTime>=0);

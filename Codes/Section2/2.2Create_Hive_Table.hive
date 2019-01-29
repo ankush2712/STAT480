@@ -1,0 +1,11 @@
+-- Create a hive table
+CREATE TABLE AirLineData0003 (Year int, Month int, DayofMonth int, DayofWeek int, DepTime int, CRSDepTime int, ArrTime int, CRSArrTime int, UniqueCarrier STRING, 
+FlightNum int, TailNum STRING, ActualElapsedTime int, CRSElapsedTime int, AirTime int, ArrDelay int, DepDelay int, Origin STRING, Dest STRING, 
+Distance int, TaxiIn int, TaxiOut int, Cancelled int, CancellationCode STRING, Diverted STRING, CarrierDelay int, WeatherDelay int, NASDelay int, 
+SecurityDelay int, LateAircraftDelay int) 
+ROW FORMAT DELIMITED
+  FIELDS TERMINATED BY ',';
+ 
+--populate table with data from AirLineData0003.csv file
+LOAD DATA LOCAL INPATH '/home/ankusha2/Stat480/RDataScience/AirlineDelays/AirLineData0003.csv'
+OVERWRITE INTO TABLE AirLineData0003;

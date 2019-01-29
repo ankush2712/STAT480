@@ -1,0 +1,36 @@
+-- We see that all the 25635 flights share a common characteristic : they are all diverted flights.
+-- Lets go back and see the frequency of diverted and non-diverted flights in the raw data 
+select
+diverted,
+count(*)
+from airlinedata0003
+group by diverted;
+
+-- Result
+--Diverted Count
+--0       12145952
+--1       25635
+
+-- This makes sense. All the diverted flights will not have ArrTime, ActualElapsedTime, AirTime and ArrDelay.
+-- Segregating the data further into non diverted and diverted. Non diverted flights will further be split into canceled and non-canceled flights.
+-- First lets drop the already created canceled and not canceled flights
+drop table airlinedata0003_cancelled;
+drop table airlinedata0003_notcancelled;
+
+--Creating hive table with diverted flights
+create table airlinedata0003_diverted as
+    select
+    *
+    from airlinedata0003
+    where diverted=1;
+
+--Creating hive table with non diverted and non cancelled
+create table airlinedata0003_nondiverted_noncancelled as
+    select
+    *
+    from airlinedata0003
+    where diverted=0 and cancelled=1;
+
+
+# Checking the number of missing values in non diverted and non canceled flights
+# Change the table name in the shell script for missing values ((2.2MissingValues.sh) and execute it for airlinedata0003_nondiverted_noncancelled table

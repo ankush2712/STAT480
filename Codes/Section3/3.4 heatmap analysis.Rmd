@@ -1,0 +1,33 @@
+```{r fig.height=20, fig.width=15, message=FALSE, warning=FALSE}
+installIfNeeded = function(cliblist){
+  libsNeeded = cliblist
+  libsNeeded = libsNeeded[!(libsNeeded %in% installed.packages()[,"Package"])]
+  if(length(libsNeeded)>0) install.packages(libsNeeded)
+}
+
+installIfNeeded(c("gplots"))
+library(gplots)
+heat=read.csv("heatmap_states.csv")
+heat=as.data.frame(heat)
+colnames(heat)=c("year","state","num_of_flight","arrdelay_rate","cancelled_rate","diverted_rate")
+heat=na.omit(heat)
+heat00=heat[heat$year==2000,]
+heat03=heat[heat$year==2003,]
+red00=heat00[,c("num_of_flight","arrdelay_rate",
+              "cancelled_rate","diverted_rate")]
+rownames(red00) = heat00$state
+red00 = as.matrix(red00)
+colnames(red00)=c("number of flight","arrival delay rate","cancellation rate","diverted rate")
+
+heatmap.2(red00, cexRow=1.8, margins=c(15,20),scale = "column")
+```
+
+```{r fig.height=20, fig.width=15, message=FALSE, warning=FALSE}
+red03=heat03[,c("num_of_flight","arrdelay_rate",
+              "cancelled_rate","diverted_rate")]
+rownames(red03) = heat03$state
+red03 = as.matrix(red03)
+colnames(red03)=c("number of flight","arrival delay rate","cancellation rate","diverted rate")
+
+heatmap.2(red03, cexRow=1.8, margins=c(15,20),scale = "column")
+```

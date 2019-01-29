@@ -1,0 +1,147 @@
+---
+```{r}
+## reading in big matrix
+library(biganalytics)
+# x = read.big.matrix("added_head.csv", header = TRUE, 
+#                      backingfile = "added_head.bin",
+#                      descriptorfile = "added_head.desc",
+#                      type = "integer")
+x=attach.big.matrix("added_head.desc")
+head(x)
+```
+
+```{r}
+##monthly cancelled rate
+month<-split(1:nrow(x), x[,"Month"])
+names(month) <- c("Jan", "Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+mothlyCount_00 <- foreach(i = 1:12, .combine=c) %do% {
+  nrow(x[x[,'Month']==i &x[,'Year']==2000 &x[,"Diverted"]==0,])
+}
+
+mothlyCount_03 <- foreach(i = 1:12, .combine=c) %do% {
+  nrow(x[x[,'Month']==i &x[,'Year']==2003 &x[,"Diverted"]==0,])
+}
+
+delay_00 <- foreach(i = 1:12, .combine=c) %do% {
+  nrow(x[x[,'Month']==i &x[,'Year']==2000 &x[,"ArrDelay"]>0 &x[,"Diverted"]==0,])
+}
+
+delay_03 <- foreach(i = 1:12, .combine=c) %do% {
+  nrow(x[x[,'Month']==i &x[,'Year']==2003 &x[,"ArrDelay"]>0 &x[,"Diverted"]==0,])
+}
+delay_ratio_00=delay_00/mothlyCount_00
+delay_ratio_03=delay_03/mothlyCount_03
+```
+
+
+```{r}
+##plotting monthly arrival delay
+library(ggplot2)
+library(reshape2)
+month_vec=c(1,2,3,4,5,6,7,8,9,10,11,12)
+df=data.frame((month_vec), delay_ratio_00, delay_ratio_03)
+ggplot(df, aes((month_vec), y = Arrival_delay_rate, color = variable)) + 
+    geom_line(aes(y = delay_ratio_00, col = "2000")) + 
+    geom_line(aes(y = delay_ratio_03, col = "2003"))+
+    ggtitle("Monthly Arrival Delay")+
+    labs(y="Arrival Delay Rate", x = "Months")+
+    scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9,10,11,12))
+```
+
+
+
+
+
+```{r}
+library(biganalytics)
+# x = read.big.matrix("added_head.csv", header = TRUE, 
+#                      backingfile = "added_head.bin",
+#                      descriptorfile = "added_head.desc",
+#                      type = "integer")
+x=attach.big.matrix("added_head.desc")
+
+
+```
+
+```{r}
+## plotting daily quantile of arrival delay in year 2000
+library(foreach)
+##picking out delay
+year2000=x[x[,"Year"]==2000,]
+# Divide CRSArrTime by 100 and take the floor to 
+# get the Arrval hour.
+ArrHours <- floor(year2000[,"CRSArrTime"]/100)
+# Set the departure hours listed as 24 to 0.
+ArrHours[ArrHours==24] <- 0
+# Split on the hours.
+hourInds <- split(1:length(ArrHours), ArrHours)
+library(parallel)
+library(doSNOW)
+numParallelCores <- max(1, detectCores()-1)# Create the parallel processes.
+cl <- makeCluster(rep("localhost", numParallelCores), 
+                  type = "SOCK")# Register the parallel processes with foreach.
+registerDoSNOW(cl)
+# Create a variable to hold the quantile probabilities.
+myProbs <- c(0.5,0.6)
+
+# Use foreach to find the quantiles for each hour.
+delayQuantiles <- foreach( hour = hourInds, .combine=cbind) %do% {
+  require(bigmemory)
+  x <- year2000
+  quantile(x[hour, "ArrDelay"], myProbs, 
+           na.rm = TRUE)
+}
+
+# Clean up the column names.
+colnames(delayQuantiles) <- names(hourInds)
+stopCluster(cl)
+library(ggplot2)
+library(reshape2) # load library for melt; this is not in the text code
+dq <- melt(delayQuantiles)
+names(dq) <- c("percentile", "hour", "delay")
+qplot(hour, delay, data = dq, color = percentile, geom = "line",main="Arrival delay quantile by hours of day in 2000")
+```
+
+
+
+
+```{r}
+## plotting daily quantile of arrival delay in year 2003
+library(foreach)
+##picking out delay
+year2003=x[x[,"Year"]==2003,]
+head(year2003)
+# Divide CRSArrTime by 100 and take the floor to 
+# get the Arrval hour.
+ArrHours <- floor(year2003[,"CRSArrTime"]/100)
+# Set the departure hours listed as 24 to 0.
+ArrHours[ArrHours==24] <- 0
+# Split on the hours.
+hourInds <- split(1:length(ArrHours), ArrHours)
+library(parallel)
+library(doSNOW)
+numParallelCores <- max(1, detectCores()-1)# Create the parallel processes.
+cl <- makeCluster(rep("localhost", numParallelCores), 
+                  type = "SOCK")# Register the parallel processes with foreach.
+registerDoSNOW(cl)
+# Create a variable to hold the quantile probabilities.
+myProbs <- c(0.5,0.6)
+
+# Use foreach to find the quantiles for each hour.
+delayQuantiles <- foreach( hour = hourInds, .combine=cbind) %do% {
+  require(bigmemory)
+  x <- year2003
+  quantile(x[hour, "ArrDelay"], myProbs, 
+           na.rm = TRUE)
+}
+
+# Clean up the column names.
+colnames(delayQuantiles) <- names(hourInds)
+stopCluster(cl)
+library(ggplot2)
+library(reshape2) # load library for melt; this is not in the text code
+dq <- melt(delayQuantiles)
+names(dq) <- c("percentile", "hour", "delay")
+qplot(hour, delay, data = dq, color = percentile, geom = "line",main="Arrival delay quantile by hours of day in 2003")
+```
